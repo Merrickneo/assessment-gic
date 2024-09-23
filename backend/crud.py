@@ -1,5 +1,5 @@
 from database import cafes_collection, employees_collection
-from models import Cafe, Employee
+from models import Cafe, Employee, UpdateEmployee
 from datetime import datetime
 
 def object_id_to_str(document):
@@ -12,7 +12,6 @@ def process_days_worked(document):
     for item in document:
         item["days_worked"] = datetime.utcnow().day - item["start_date"].day
     return document
-
 
 '''
 GET endpoints
@@ -48,7 +47,7 @@ async def create_cafe(cafe: Cafe):
 # Create a new employee
 async def create_employee(employee: Employee):
     # Check if the employee is already working in a cafe
-    existing_employee = await employees_collection.find_one({"_id": employee.id})
+    existing_employee = await employees_collection.find_one({"id": employee.id})
     if existing_employee and existing_employee["cafe_id"]:
         raise ValueError("This employee is already assigned to a café.")
     
@@ -68,32 +67,33 @@ PUT endpoints
 async def update_cafe_details(cafe: Cafe):
     await cafes_collection.update_one({"id": cafe.id}, {"$set": cafe.dict()})
     updated_cafe = await cafes_collection.find_one({"id": cafe.id})
-    return updated_cafe
+    return [object_id_to_str(updated_cafe)]
 
-async def update_employee_details(employee: Employee):
+async def update_employee_details(employee: UpdateEmployee):
     # Check if the employee is already assigned to a different cafe
     existing_employee = await employees_collection.find_one({"id": employee.id})
     if existing_employee and existing_employee["cafe_id"] != employee.cafe_id:
         raise ValueError("This employee is already assigned to a different café.")
     
     # Proceed with updating the employee's information
-    await employees_collection.update_one({"_id": employee.id}, {"$set": employee.dict()})
-    updated_employee = await employees_collection.find_one({"_id": employee.id})
+    await employees_collection.update_one({"id": employee.id}, {"$set": employee.dict()})
+    updated_employee = await employees_collection.find_one({"id": employee.id})
+    return [object_id_to_str(updated_employee)]
 
 
 """
 DELETE endpoints
 """
 # Delete a cafe based on its id
-async def delete_cafe(cafe_id: str):
-    await cafes_collection.delete_one({"_id": cafe.id})
+async def remove_cafe(cafe_id: str):
+    await cafes_collection.delete_one({"id": cafe_id})
     # delete all employees associated with the cafe
-    await employees_collection.delete_many({"cafe_id": cafe.id})
+    await employees_collection.delete_many({"cafe_id": cafe_id})
     return True
 
 # Delete an employee based on their id
-async def delete_employee(employee_id: str):
-    await employees_collection.delete_one({"_id": employee.id})
+async def remove_employee(employee_id: str):
+    await employees_collection.delete_one({"id": employee_id})
     return True
 
 # print(create_cafe(Cafe(id="UI100000", name="Cafe 1", description="A nice cafe", location="Singapore")))

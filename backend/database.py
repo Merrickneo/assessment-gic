@@ -1,6 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
+import os
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")

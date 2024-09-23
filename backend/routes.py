@@ -1,8 +1,21 @@
 from fastapi import FastAPI, HTTPException
-from crud import get_cafes, create_cafe, update_cafe_details, get_employees, create_employee, update_employee_details, delete_cafe, delete_employee
-from models import Cafe, Employee
+from fastapi.middleware.cors import CORSMiddleware
+from crud import get_cafes, create_cafe, update_cafe_details, get_employees, create_employee, update_employee_details, remove_cafe, remove_employee
+from models import Cafe, Employee, UpdateEmployee
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["*"],
+)
 
 """
 GET endpoints
@@ -32,7 +45,11 @@ async def add_cafe(cafe: Cafe):
 # Create a new employee
 @app.post("/employee")
 async def add_employee(employee: Employee):
-    return await create_employee(employee)
+    try:
+        output = await create_employee(employee)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return output
 
 """
 PUT endpoints
@@ -44,16 +61,20 @@ async def update_cafe(cafe: Cafe):
 
 # Update employees details
 @app.put("/employee")
-async def update_employee(employee: Employee):
-    return await update_employee_details(employee)
+async def update_employee(employee: UpdateEmployee):
+    try:
+        output = await update_employee_details(employee)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return output
 
 """
 Delete endpoints
 """
 @app.delete("/cafe")
 async def delete_cafe(cafe_id: str):
-    return await delete_cafe(cafe_id)
+    return await remove_cafe(cafe_id)
 
 @app.delete("/employee")
 async def delete_employee(employee_id: str):
-    return await delete_employee(employee_id)
+    return await remove_employee(employee_id)
