@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
 import { useNavigate } from 'react-router-dom';
-import { Button, TextField } from '@mui/material';
+import { Button } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { getCafes, createCafe, updateCafe, deleteCafe } from '../api/cafes';
 import { getEmployees } from '../api/employees';
@@ -17,7 +17,6 @@ export const CafePage = () => {
     const navigate = useNavigate();
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const [selectedCafe, setSelectedCafe] = useState<Cafe | null>(null);
-    const [location, setLocation] = useState('');
     const [isEdit, setIsEdit] = useState(false);
 
     const handleEmployeeClick = (cafeId: string) => {
@@ -78,10 +77,10 @@ export const CafePage = () => {
     ]);
 
     // Fetch cafes from the API with optional location filtering
-    const { data: cafes = [], refetch } = useQuery({
-        queryKey: ['cafes', location],
+    const { data: cafes, refetch } = useQuery({ // eslint-disable-line
+        queryKey: ['cafes', ''],
         queryFn: async () => {
-            const fetchedCafes = await getCafes(location);
+            const fetchedCafes = await getCafes('');
             const cafeData = await Promise.all(fetchedCafes.map(async (cafe) => {
                 const employees = await getEmployees(cafe.id);
                 const employeeCount = employees.length;

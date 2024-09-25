@@ -1,24 +1,23 @@
-# Use a Node.js base image
+# Base image
 FROM node:18-alpine
 
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy the package.json and install dependencies
-COPY package.json yarn.lock ./
-RUN yarn install
+# Copy package.json and package-lock.json to the working directory
+COPY package*.json ./
 
-# Copy the rest of the frontend code
+# Install project dependencies
+RUN npm install
+
+# Copy the entire project to the working directory
 COPY . .
 
 # Build the React app
-RUN yarn build
+RUN npm run build
 
-# Install a lightweight web server and serve the built frontend
-RUN npm install -g serve
-
-# Expose the port for the frontend (assuming it's served on port 3000)
+# Expose the port on which the React app will run
 EXPOSE 3000
 
-# Start the frontend with the 'serve' command
-CMD ["serve", "-s", "build", "-l", "3000"]
+# Specify the command to start the React app
+CMD ["npm", "start"]

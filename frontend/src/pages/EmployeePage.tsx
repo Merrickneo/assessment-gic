@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { getEmployees, deleteEmployee, updateEmployee, createEmployee } from '../api/employees'; // Ensure these API functions exist
@@ -18,7 +17,6 @@ export const EmployeePage = () => {
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null); // State to store the selected employee for editing
     
     // get the cafe id from the URL
-    const navigate = useNavigate();
     const cafe_id = new URLSearchParams(window.location.search).get('cafe_id');
 
     const { data: employees = [], refetch } = useQuery({

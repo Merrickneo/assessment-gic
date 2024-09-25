@@ -1,4 +1,3 @@
-import React from 'react';
 import './App.css';
 import './assets/cafe192.png';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
